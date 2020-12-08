@@ -5,7 +5,7 @@ import logoImg from "../../assets/sps-logo.png";
 
 import { useEffect, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
-import { FiPower, FiTrash2 } from "react-icons/fi";
+import { FiPower, FiTrash2, FiSettings } from "react-icons/fi";
 
 import ClientsService from "../../services/Clients.service";
 
@@ -40,6 +40,11 @@ function Profile() {
     } catch (error) {
       alert("Erro ao deletar Cliente!");
     }
+  }
+
+  async function handleUpdateClient(event, client) {
+    event.stopPropagation();
+    localStorage.setItem("clientId", client.id);
   }
 
   function handleLogout() {
@@ -84,6 +89,16 @@ function Profile() {
             >
               <FiTrash2 size={20} color="#a8a8b3" />
             </button>
+
+            <Link to="/clients/update">
+              <button
+                onClick={(e) => handleUpdateClient(e, client)}
+                type="button"
+                className="update"
+              >
+                <FiSettings size={20} color="#a8a8b3" />
+              </button>
+            </Link>
           </li>
         ))}
       </ul>

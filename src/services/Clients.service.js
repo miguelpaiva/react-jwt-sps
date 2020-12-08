@@ -1,6 +1,13 @@
 import Api from "./Api.service";
 
 class ClientsService extends Api {
+  async get(clientId) {
+    const response = await this.request({
+      method: "GET",
+      url: `clients/${clientId}`,
+    });
+    return response.data;
+  }
   async list() {
     const response = await this.request({
       method: "GET",
@@ -22,6 +29,14 @@ class ClientsService extends Api {
       method: "DELETE",
       url: `clients/${clientId}`,
     });
+  }
+  async update(clientId, data) {
+    const response = await this.request({
+      method: "PUT",
+      url: `clients/${clientId}`,
+      data,
+    });
+    return response.data;
   }
 }
 

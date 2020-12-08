@@ -1,6 +1,13 @@
 import Api from "./Api.service";
 
 class CompanyService extends Api {
+  async get(companyId) {
+    const response = await this.request({
+      method: "GET",
+      url: `companies/${companyId}`,
+    });
+    return response.data;
+  }
   async list() {
     const response = await this.request({
       method: "GET",
@@ -24,10 +31,11 @@ class CompanyService extends Api {
       url: `companies/${companyId}`,
     });
   }
-  async update(companyId) {
+  async update(companyId, data) {
     const response = await this.request({
       method: "PUT",
       url: `companies/${companyId}`,
+      data,
     });
     return response.data;
   }

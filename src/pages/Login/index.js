@@ -1,8 +1,13 @@
 import "./styles.css";
 
 import { FiLogIn } from "react-icons/fi";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
+
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+import Loading from "../../components/Loading";
 
 import logoImg from "../../assets/sps-logo.png";
 import spsImg from "../../assets/sps-software.png";
@@ -17,11 +22,15 @@ export default function Login() {
 
   const history = useHistory();
 
+  const [isLoading, setIsLoading] = useState(false);
+
   async function handleLogin(event) {
     event.preventDefault();
+
     const email = emailRef.current.value;
     const password = passwordRef.current.value;
     try {
+      setIsLoading(true);
       const authorizationToken = await authService.getAuthToken(
         email,
         password
@@ -31,12 +40,15 @@ export default function Login() {
 
       history.push("/companies-profile");
     } catch (error) {
-      alert("Falha no login");
+      toast.error("Falha no login!");
+      setIsLoading(false);
     }
   }
 
   return (
     <div className="login-container">
+      <Loading status={isLoading} />
+
       <section className="form">
         <img src={logoImg} alt="Logo" />
 

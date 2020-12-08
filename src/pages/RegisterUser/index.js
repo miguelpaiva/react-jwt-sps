@@ -8,7 +8,7 @@ import { FiArrowLeft } from "react-icons/fi";
 
 import UsersService from "../../services/Users.service";
 
-function Register() {
+function RegisterUser() {
   const companyToken = localStorage.getItem("companyToken");
   const usersService = new UsersService(companyToken);
 
@@ -32,7 +32,7 @@ function Register() {
     };
 
     try {
-      const [name] = await usersService.create(data);
+      await usersService.create(data);
 
       alert(`Usuario cadastrado com sucesso!`);
 
@@ -72,4 +72,4 @@ function Register() {
   );
 }
 
-export default Register;
+export default RegisterUser;

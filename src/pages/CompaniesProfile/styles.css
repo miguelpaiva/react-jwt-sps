@@ -73,6 +73,19 @@
   opacity: 0.8;
 }
 
+.profile-container ul li button.update {
+  position: absolute;
+  right: 58px;
+  top: 24px;
+  background: none;
+  border: 0;
+  transition: 0.4s;
+}
+
+.profile-container ul li button.update:hover {
+  opacity: 0.8;
+}
+
 .profile-container ul li strong {
   display: block;
   margin-bottom: 10px;
