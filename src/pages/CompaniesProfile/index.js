@@ -1,22 +1,27 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import "./styles.css";
 
-import logoImg from "../../assets/sps-logo.png";
+import { useEffect, useRef, useState } from "react";
+import { useHistory } from "react-router-dom";
 
-import { useEffect, useState } from "react";
-import { Link, useHistory } from "react-router-dom";
-import { FiPower, FiTrash2, FiSettings } from "react-icons/fi";
+import { Container, Companies } from "./styles.js";
 
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import Loading from "../../components/Loading";
+import Modal from "../../components/Modal";
+import EmptyList from "../../components/EmptyList";
+import Header from "../../components/Header";
+
+import Company from "./components/Company";
 
 import AuthService from "../../services/Auth.service";
 import CompanyService from "../../services/Company.service";
 
 function CompaniesProfile() {
   const history = useHistory();
+
+  const [isLoading, setIsLoading] = useState(false);
 
   const authorizationToken = localStorage.getItem("authorizationToken");
 
@@ -25,13 +30,32 @@ function CompaniesProfile() {
 
   const [companies, setCompanies] = useState([]);
 
-  const loginToast = () => toast.success("Login realizado com sucesso!");
+  const [companyId, setCompanyId] = useState("");
+
+  //Modal
+  const modalRef = useRef(null);
+
+  function handleOpenModal(e, companyId) {
+    e.stopPropagation();
+
+    setCompanyId(companyId);
+
+    modalRef.current.openModal();
+  }
+
+  function handleCloseModal(e) {
+    e.stopPropagation();
+
+    modalRef.current.closeModal();
+  }
+  //Modal
 
   async function render() {
-    loginToast();
+    setIsLoading(true);
     const companiesList = await companyService.list();
 
     setCompanies(companiesList);
+    setIsLoading(false);
   }
   useEffect(render, []);
 
@@ -53,82 +77,62 @@ function CompaniesProfile() {
   async function handleDeleteCompany(event, companyId) {
     event.stopPropagation();
 
+    handleCloseModal(event);
+
     try {
+      setIsLoading(true);
       await companyService.delete(companyId);
 
       setCompanies(companies.filter((company) => company.id !== companyId));
-    } catch (error) {
-      alert("Erro ao deletar Empresa!");
-    }
-  }
 
-  function handleLogout() {
-    localStorage.clear();
-    history.push("/");
+      toast.success("Empresa deletada com sucesso!");
+      setIsLoading(false);
+    } catch (error) {
+      toast.error("Falha ao deletar a empresa!");
+    }
   }
 
   async function handleUpdateCompany(event, company) {
     event.stopPropagation();
-    localStorage.setItem("companyId", company.id);
+
+    history.push(`/companies/update/${company.id}`);
   }
 
   return (
-    <div className="profile-container">
-      <Loading status={false} />
-      <header>
-        <img src={logoImg} alt="Logo" />
-        <span>Bem vindo </span>
+    <Container>
+      <Loading status={isLoading} />
 
-        <Link className="button" to="/companies/new">
-          Cadastrar Empresa
-        </Link>
-
-        <button onClick={handleLogout} type="button">
-          <FiPower size={20} color="#0E88FF" />
-        </button>
-      </header>
+      <Header path="/companies/new" buttonText="Empresa" />
 
       <h1>Empresas</h1>
 
-      <ul>
+      <Companies>
         {companies.length === 0 ? (
-          <div>Cadastre um cliente!</div>
+          <EmptyList>Cadastre uma empresa!</EmptyList>
         ) : (
           companies.map((company) => (
-            <li onClick={() => onSelectedCompany(company)} key={company.id}>
-              <strong>NOME: </strong>
-              <p>{company.name}</p>
-
-              <strong>E-MAIL: </strong>
-              <p>{company.email}</p>
-
-              <strong>DESCRIÇÃO: </strong>
-              <p>{company.description}</p>
-
-              <strong>TELEFONE:</strong>
-              <p>{company.phone}</p>
-
-              <button
-                onClick={(e) => handleDeleteCompany(e, company.id)}
-                type="button"
-              >
-                <FiTrash2 size={20} color="#a8a8b3" />
-              </button>
-
-              <Link to="/companies/update">
-                <button
-                  onClick={(e) => handleUpdateCompany(e, company)}
-                  type="button"
-                  className="update"
-                >
-                  <FiSettings size={20} color="#a8a8b3" />
-                </button>
-              </Link>
-            </li>
+            <Company
+              company={company}
+              onSelected={() => onSelectedCompany(company)}
+              key={company.id}
+              onDelete={(e) => handleOpenModal(e, company.id)}
+              onUpdate={(e) => handleUpdateCompany(e, company)}
+            />
           ))
         )}
-      </ul>
-    </div>
+      </Companies>
+
+      <Modal ref={modalRef}>
+        <p>Você quer deletar essa empresa?</p>
+
+        <div id="bt-group">
+          <button onClick={(e) => handleCloseModal(e)}>Cancelar</button>
+          <button onClick={(e) => handleDeleteCompany(e, companyId)}>
+            Deletar
+          </button>
+        </div>
+      </Modal>
+    </Container>
   );
 }
 

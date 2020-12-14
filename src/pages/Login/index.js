@@ -1,13 +1,15 @@
-import "./styles.css";
-
-import { FiLogIn } from "react-icons/fi";
 import { useRef, useState } from "react";
-import { Link, useHistory } from "react-router-dom";
+import { useHistory } from "react-router-dom";
+import { FiLogIn } from "react-icons/fi";
+
+import { Container } from "./styles.js";
 
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import Loading from "../../components/Loading";
+import LinkButton from "../../components/LinkButton";
+import FacebookButton from "../../components/FacebookButton";
 
 import logoImg from "../../assets/sps-logo.png";
 import spsImg from "../../assets/sps-software.png";
@@ -39,6 +41,8 @@ export default function Login() {
       localStorage.setItem("authorizationToken", authorizationToken);
 
       history.push("/companies-profile");
+      toast.success("Login realizado com sucesso!");
+      setIsLoading(false);
     } catch (error) {
       toast.error("Falha no login!");
       setIsLoading(false);
@@ -46,7 +50,7 @@ export default function Login() {
   }
 
   return (
-    <div className="login-container">
+    <Container>
       <Loading status={isLoading} />
 
       <section className="form">
@@ -64,14 +68,17 @@ export default function Login() {
             Entrar
           </button>
 
-          <Link className="back-link" to="/user/new">
-            <FiLogIn size={16} color="#0E88FF" />
-            Não tenho cadastro
-          </Link>
+          <LinkButton
+            text="Não tenho cadastro"
+            icon={<FiLogIn size={16} color="#0E88FF" />}
+            path="/user/new"
+          />
+
+          <FacebookButton />
         </form>
       </section>
 
       <img src={spsImg} alt="SPS" />
-    </div>
+    </Container>
   );
 }

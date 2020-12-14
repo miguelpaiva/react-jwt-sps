@@ -1,19 +1,23 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import "./styles.css";
 
-import logoImg from "../../assets/sps-logo.png";
+import { useRef, useEffect, useState } from "react";
+import { useHistory } from "react-router-dom";
+import { toast } from "react-toastify";
 
-import { useRef, useEffect } from "react";
-import { Link, useHistory } from "react-router-dom";
-import { FiArrowLeft } from "react-icons/fi";
+import Loading from "../../components/Loading";
+import RegisterPage from "../../components/RegisterPage";
 
 import CompanyService from "../../services/Company.service";
 
-function UpdateCompany() {
+import { Container } from "./styles";
+
+function UpdateCompany({ match }) {
+  const { companyId } = match.params;
+
+  const [isLoading, setIsLoading] = useState(false);
+
   const authorizationToken = localStorage.getItem("authorizationToken");
   const companyService = new CompanyService(authorizationToken);
-
-  const companyId = localStorage.getItem("companyId");
 
   async function getCompany() {
     try {
@@ -24,7 +28,7 @@ function UpdateCompany() {
       phoneRef.current.value = company.phone;
       descriptionRef.current.value = company.description;
     } catch (error) {
-      alert("erro");
+      toast.error(error.message);
     }
   }
 
@@ -53,39 +57,27 @@ function UpdateCompany() {
     };
 
     try {
-      const response = await companyService.update(companyId, data);
+      setIsLoading(true);
+      await companyService.update(companyId, data);
 
-      alert(`Empresa alterada com sucesso!`);
+      toast.success("Empresa alterada com sucesso!");
 
+      setIsLoading(false);
       history.push("/companies-profile");
     } catch (error) {
       console.error(error);
+      toast.error("Falha na alteração da empresa!");
     }
   }
 
-  function clearCompanyStorage(event) {
-    event.stopPropagation();
-
-    localStorage.removeItem("companyId");
-  }
-
   return (
-    <div className="register-container">
-      <div className="content">
-        <section>
-          <img src={logoImg} alt="Logo" />
-          <h1>Alterar Empresa</h1>
-          <p>Mantenha sempre os dados da sua empresa atualizados!</p>
+    <Container>
+      <Loading status={isLoading} />
 
-          <Link
-            onClick={clearCompanyStorage}
-            className="back-link"
-            to="/companies-profile"
-          >
-            <FiArrowLeft size={20} color="#0E88FF" />
-            Voltar para Perfil
-          </Link>
-        </section>
+      <RegisterPage
+        h1Text="Alterar Empresa"
+        paragText="Mantenha sempre os dados da sua empresa atualizados!"
+      >
         <form onSubmit={handleUpdate}>
           <input ref={nameRef} type="text" placeholder="Nome da Empresa" />
           <input ref={emailRef} type="email" placeholder="Email da empresa" />
@@ -96,8 +88,8 @@ function UpdateCompany() {
             Alterar
           </button>
         </form>
-      </div>
-    </div>
+      </RegisterPage>
+    </Container>
   );
 }
 

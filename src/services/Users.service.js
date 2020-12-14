@@ -1,10 +1,10 @@
 import Api from "./Api.service";
 
-class ClientsService extends Api {
+class UsersService extends Api {
   async list() {
     const response = await this.request({
       method: "GET",
-      url: "user",
+      url: "users",
     });
 
     return response.data;
@@ -19,4 +19,4 @@ class ClientsService extends Api {
   }
 }
 
-export default ClientsService;
+export default UsersService;

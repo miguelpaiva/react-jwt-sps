@@ -1,19 +1,22 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import "./styles.css";
 
-import logoImg from "../../assets/sps-logo.png";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 import { useRef, useEffect } from "react";
-import { Link, useHistory } from "react-router-dom";
-import { FiArrowLeft } from "react-icons/fi";
+import { useHistory } from "react-router-dom";
+
+import { Container } from "./styles";
+
+import RegisterPage from "../../components/RegisterPage";
 
 import ClientsService from "../../services/Clients.service";
 
-function UpdateClient() {
+function UpdateClient({ match }) {
+  const { clientId } = match.params;
+
   const companyToken = localStorage.getItem("companyToken");
   const clientsService = new ClientsService(companyToken);
-
-  const clientId = localStorage.getItem("clientId");
 
   async function getClient() {
     try {
@@ -24,7 +27,7 @@ function UpdateClient() {
       whatsappRef.current.value = client.whatsapp;
       sectorRef.current.value = client.sector;
     } catch (error) {
-      alert("erro");
+      toast.error(error.message);
     }
   }
 
@@ -53,9 +56,9 @@ function UpdateClient() {
     };
 
     try {
-      const response = await clientsService.update(clientId, data);
+      await clientsService.update(clientId, data);
 
-      alert(`Cliente alterado com sucesso!`);
+      toast.success(`Cliente alterado com sucesso!`);
 
       history.push("/clients-profile");
     } catch (error) {
@@ -63,29 +66,12 @@ function UpdateClient() {
     }
   }
 
-  function clearCompanyStorage(event) {
-    event.stopPropagation();
-
-    localStorage.removeItem("companyId");
-  }
-
   return (
-    <div className="register-container">
-      <div className="content">
-        <section>
-          <img src={logoImg} alt="Logo" />
-          <h1>Alterar Cliente</h1>
-          <p>Mantenha sempre os dados de seus clientes atualizados!</p>
-
-          <Link
-            onClick={clearCompanyStorage}
-            className="back-link"
-            to="/clients-profile"
-          >
-            <FiArrowLeft size={20} color="#0E88FF" />
-            Voltar para Perfil
-          </Link>
-        </section>
+    <Container>
+      <RegisterPage
+        h1Text="Alterar Cliente"
+        paragText="Mantenha sempre os dados de seus clientes atualizados!"
+      >
         <form onSubmit={handleUpdate}>
           <input ref={nameRef} type="text" placeholder="Nome do Cliente" />
           <input ref={emailRef} type="email" placeholder="Email do Cliente" />
@@ -96,8 +82,8 @@ function UpdateClient() {
             Alterar
           </button>
         </form>
-      </div>
-    </div>
+      </RegisterPage>
+    </Container>
   );
 }
 

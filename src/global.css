@@ -7,10 +7,29 @@
   box-sizing: border-box;
 } 
 
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: auto;
+}
+
 body {
   font: 400 14px 'Roboto', sans-serif;
   background-color: #f0f0f5;
   -webkit-font-smoothing: antialiased;
+
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
 }
 
 input, button, textarea {
@@ -67,23 +86,4 @@ form textarea {
 
 .button:hover {
   filter: brightness(90%);
-}
-
-.back-link {
-  display: flex;
-  align-items: center;
-  margin-top: 40px;
-  color: #41414d;
-  font-size: 18px;
-  text-decoration: none;
-  font-weight: 700;
-  transition: all 0.2s;
-}
-
-.back-link svg {
-  margin-right: 10px;
-}
-
-.back-link:hover {
-  opacity: 0.8;
 }

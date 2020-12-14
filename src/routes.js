@@ -11,20 +11,33 @@ import ClientsProfile from "./pages/ClientsProfile";
 import RegisterClient from "./pages/RegisterClient";
 import UpdateClient from "./pages/UpdateClient";
 
+import FacebookApp from "./components/FacebookApp";
+
 function Routes() {
   return (
     <BrowserRouter>
       <Switch>
         <Route exact path="/" component={Login} />
+
+        <Route exact path="/facebook" component={FacebookApp} />
+
         <Route exact path="/user/new" component={RegisterUser} />
 
         <Route exact path="/companies-profile" component={CompaniesProfile} />
         <Route exact path="/companies/new" component={RegisterCompany} />
-        <Route exact path="/companies/update" component={UpdateCompany} />
+        <Route
+          exact
+          path="/companies/update/:companyId"
+          component={UpdateCompany}
+        />
 
         <Route exact path="/clients-profile" component={ClientsProfile} />
         <Route exact path="/clients/new" component={RegisterClient} />
-        <Route exact path="/clients/update" component={UpdateClient} />
+        <Route
+          exact
+          path="/clients/update/:clientId"
+          component={UpdateClient}
+        />
       </Switch>
     </BrowserRouter>
   );

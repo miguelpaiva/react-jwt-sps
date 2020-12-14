@@ -1,10 +1,13 @@
-import "./styles.css";
+import { useRef, useState } from "react";
+import { useHistory } from "react-router-dom";
 
-import logoImg from "../../assets/sps-logo.png";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
-import { useRef } from "react";
-import { Link, useHistory } from "react-router-dom";
-import { FiArrowLeft } from "react-icons/fi";
+import Loading from "../../components/Loading";
+import RegisterPage from "../../components/RegisterPage";
+
+import { Container } from "./styles";
 
 import UsersService from "../../services/Users.service";
 
@@ -18,46 +21,46 @@ function RegisterUser() {
 
   const history = useHistory();
 
+  const [isLoading, setIsLoading] = useState(false);
+
   async function handleRegister(event) {
     event.preventDefault();
 
     const name = nameRef.current.value;
     const email = emailRef.current.value;
     const password = passwordRef.current.value;
+    const authType = 0;
 
     const data = {
       name,
       email,
       password,
+      authType,
     };
 
     try {
+      setIsLoading(true);
+
       await usersService.create(data);
 
-      alert(`Usuario cadastrado com sucesso!`);
+      toast.success(`Usuário cadastrado com sucesso!`);
 
       history.push("/");
     } catch (error) {
       console.error(error);
+      setIsLoading(false);
+      toast.error(`Falha ao cadastrar usuário!`);
     }
   }
 
   return (
-    <div className="register-container">
-      <div className="content">
-        <section>
-          <img src={logoImg} alt="Logo" />
-          <h1>Faça seu cadastro</h1>
-          <p>
-            Tenha nas mãos uma das melhores ferramentas para gerenciar empresas
-            e clientes
-          </p>
+    <Container>
+      <Loading status={isLoading} />
 
-          <Link className="back-link" to="/companies-profile">
-            <FiArrowLeft size={20} color="#0E88FF" />
-            Voltar para Login
-          </Link>
-        </section>
+      <RegisterPage
+        h1Text="Faça seu cadastro"
+        paragText="Tenha nas mãos a melhor plataforma para cuidar das informações das suas empresas e clientes"
+      >
         <form onSubmit={handleRegister}>
           <input ref={nameRef} type="text" placeholder="Nome" />
           <input ref={emailRef} type="email" placeholder="E-mail" />
@@ -67,8 +70,8 @@ function RegisterUser() {
             Cadastrar
           </button>
         </form>
-      </div>
-    </div>
+      </RegisterPage>
+    </Container>
   );
 }
 

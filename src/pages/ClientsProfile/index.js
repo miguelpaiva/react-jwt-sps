@@ -1,11 +1,20 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import "./styles.css";
 
-import logoImg from "../../assets/sps-logo.png";
+import { useEffect, useState, useRef } from "react";
+import { useHistory } from "react-router-dom";
 
-import { useEffect, useState } from "react";
-import { Link, useHistory } from "react-router-dom";
-import { FiPower, FiTrash2, FiSettings } from "react-icons/fi";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+import { Container, Clients } from "./styles.js";
+
+import Loading from "../../components/Loading";
+import Modal from "../../components/Modal";
+import EmptyList from "../../components/EmptyList";
+import Header from "../../components/Header";
+import BackButton from "../../components/BackButton";
+
+import Client from "./components/Client";
 
 import ClientsService from "../../services/Clients.service";
 
@@ -18,13 +27,33 @@ function Profile() {
 
   const [clients, setClients] = useState([]);
 
+  const [clientId, setClientId] = useState("");
+
+  //Modal
+  const modalRef = useRef(null);
+
+  function handleOpenModal(e, clientId) {
+    e.stopPropagation();
+
+    setClientId(clientId);
+
+    modalRef.current.openModal();
+  }
+
+  function handleCloseModal(e) {
+    e.stopPropagation();
+
+    modalRef.current.closeModal();
+  }
+  //Modal
+
   async function initial() {
     try {
       const clientsList = await clientsService.list();
 
       setClients(clientsList);
     } catch (error) {
-      alert(error.message);
+      toast.error(error.message);
     }
   }
 
@@ -37,6 +66,8 @@ function Profile() {
       await clientsService.delete(clientId);
 
       setClients(clients.filter((client) => client.id !== clientId));
+
+      handleCloseModal(event);
     } catch (error) {
       alert("Erro ao deletar Cliente!");
     }
@@ -44,65 +75,46 @@ function Profile() {
 
   async function handleUpdateClient(event, client) {
     event.stopPropagation();
-    localStorage.setItem("clientId", client.id);
-  }
 
-  function handleLogout() {
-    localStorage.clear();
-    history.push("/");
+    history.push(`/clients/update/${client.id}`);
   }
 
   return (
-    <div className="profile-container">
-      <header>
-        <img src={logoImg} alt="Logo" />
-        <span>Bem vindo</span>
+    <Container>
+      <Loading status={false} />
 
-        <Link className="button" to="/clients/new">
-          Cadastrar Novo Cliente
-        </Link>
-        <button onClick={handleLogout} type="button">
-          <FiPower size={20} color="#0E88FF" />
-        </button>
-      </header>
+      <Header path="/clients/new" buttonText="Cliente" />
 
-      <h1>Clientes Cadastrados</h1>
+      <h1>Clientes</h1>
 
-      <ul>
-        {clients.map((client) => (
-          <li key={client.id}>
-            <strong>NOME: </strong>
-            <p>{client.name}</p>
+      <Clients>
+        {clients.length === 0 ? (
+          <EmptyList>Cadastre um novo cliente!</EmptyList>
+        ) : (
+          clients.map((client) => (
+            <Client
+              key={client.id}
+              client={client}
+              onDelete={(e) => handleOpenModal(e, client.id)}
+              onUpdate={(e) => handleUpdateClient(e, client)}
+            />
+          ))
+        )}
+      </Clients>
 
-            <strong>E-MAIL: </strong>
-            <p>{client.email}</p>
+      <Modal ref={modalRef}>
+        <p>Você quer deletar esse cliente?</p>
 
-            <strong>WHATSAPP: </strong>
-            <p>{client.whatsapp}</p>
+        <div id="bt-group">
+          <button onClick={(e) => handleCloseModal(e)}>Cancelar</button>
+          <button onClick={(e) => handleDeleteClient(e, clientId)}>
+            Deletar
+          </button>
+        </div>
+      </Modal>
 
-            <strong>SETOR:</strong>
-            <p>{client.sector}</p>
-
-            <button
-              onClick={(e) => handleDeleteClient(e, client.id)}
-              type="button"
-            >
-              <FiTrash2 size={20} color="#a8a8b3" />
-            </button>
-
-            <Link to="/clients/update">
-              <button
-                onClick={(e) => handleUpdateClient(e, client)}
-                type="button"
-                className="update"
-              >
-                <FiSettings size={20} color="#a8a8b3" />
-              </button>
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </div>
+      <BackButton text="Voltar para Perfil das Empresas" />
+    </Container>
   );
 }
 

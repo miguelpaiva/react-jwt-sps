@@ -1,10 +1,13 @@
-import "./styles.css";
+import { useRef, useState } from "react";
+import { useHistory } from "react-router-dom";
 
-import logoImg from "../../assets/sps-logo.png";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
-import { useRef } from "react";
-import { Link, useHistory } from "react-router-dom";
-import { FiArrowLeft } from "react-icons/fi";
+import { Container } from "./styles";
+
+import Loading from "../../components/Loading";
+import RegisterPage from "../../components/RegisterPage";
 
 import ClientsService from "../../services/Clients.service";
 
@@ -18,6 +21,8 @@ function Register() {
   const sectorRef = useRef();
 
   const history = useHistory();
+
+  const [isLoading, setIsLoading] = useState(false);
 
   async function handleRegister(event) {
     event.preventDefault();
@@ -35,32 +40,28 @@ function Register() {
     };
 
     try {
-      const response = await clientsService.create(data);
+      setIsLoading(true);
 
-      alert(`Cliente cadastrado com sucesso!`);
+      await clientsService.create(data);
+
+      toast.success("Cliente cadastrado com sucesso!");
 
       history.push("/clients-profile");
+      setIsLoading(false);
     } catch (error) {
       console.error(error);
+      setIsLoading(false);
     }
   }
 
   return (
-    <div className="register-container">
-      <div className="content">
-        <section>
-          <img src={logoImg} alt="Logo" />
-          <h1>Adicionar Cliente</h1>
-          <p>
-            Adicione mais um cliente na plataforma e tenha um melhor controle
-            sobre suas informações
-          </p>
+    <Container>
+      <Loading status={isLoading} />
 
-          <Link className="back-link" to="/companies-profile">
-            <FiArrowLeft size={20} color="#0E88FF" />
-            Voltar para Perfil
-          </Link>
-        </section>
+      <RegisterPage
+        h1Text="Adicionar Cliente"
+        paragText="Adicione mais um cliente na plataforma e tenha um melhor controlesobre suas informações"
+      >
         <form onSubmit={handleRegister}>
           <input ref={nameRef} type="text" placeholder="Nome do Cliente" />
           <input ref={emailRef} type="email" placeholder="E-mail do Cliente" />
@@ -71,8 +72,8 @@ function Register() {
             Cadastrar
           </button>
         </form>
-      </div>
-    </div>
+      </RegisterPage>
+    </Container>
   );
 }
 

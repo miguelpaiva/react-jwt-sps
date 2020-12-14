@@ -1,10 +1,14 @@
-import "./styles.css";
+import { useRef, useState } from "react";
+import { useHistory } from "react-router-dom";
 
-import logoImg from "../../assets/sps-logo.png";
+import Loading from "../../components/Loading";
+import RegisterPage from "../../components/RegisterPage";
 
-import { useRef } from "react";
-import { Link, useHistory } from "react-router-dom";
-import { FiArrowLeft } from "react-icons/fi";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+//import "./styles.css";
+import { Container } from "./styles.js";
 
 import CompanyService from "../../services/Company.service";
 
@@ -18,6 +22,8 @@ function Register() {
   const descriptionRef = useRef();
 
   const history = useHistory();
+
+  const [isLoading, setIsLoading] = useState(false);
 
   async function handleRegister(event) {
     event.preventDefault();
@@ -35,32 +41,28 @@ function Register() {
     };
 
     try {
-      const response = await companyService.create(companyData);
+      setIsLoading(true);
 
-      alert(`Empresa cadastrada com sucesso!`);
+      await companyService.create(companyData);
+
+      toast.success("Empresa cadastrada com sucesso!");
 
       history.push("/companies-profile");
+      setIsLoading(false);
     } catch (error) {
       console.error(error);
+      setIsLoading(false);
     }
   }
 
   return (
-    <div className="register-container">
-      <div className="content">
-        <section>
-          <img src={logoImg} alt="Logo" />
-          <h1>Adicionar Empresa</h1>
-          <p>
-            Adicione mais uma empresa na plataforma e ajude pessoas a
-            encontrarem a melhor forma de gerir seus negócios
-          </p>
+    <Container>
+      <Loading status={isLoading} />
 
-          <Link className="back-link" to="/companies-profile">
-            <FiArrowLeft size={20} color="#0E88FF" />
-            Voltar para Perfil
-          </Link>
-        </section>
+      <RegisterPage
+        h1Text="Cadastrar Empresa"
+        paragText="Tenha sempre o controle das suas empresas com o melhor sistema!"
+      >
         <form onSubmit={handleRegister}>
           <input ref={nameRef} type="text" placeholder="Nome da Empresa" />
           <input ref={emailRef} type="email" placeholder="E-mail" />
@@ -71,8 +73,8 @@ function Register() {
             Cadastrar
           </button>
         </form>
-      </div>
-    </div>
+      </RegisterPage>
+    </Container>
   );
 }
 
